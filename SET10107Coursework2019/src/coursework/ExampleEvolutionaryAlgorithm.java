@@ -1,6 +1,9 @@
 package coursework;
 
 import java.util.ArrayList;
+import java.util.Collection;
+
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Collections;
 
 import model.Fitness;
 import model.Individual;
@@ -42,8 +45,8 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 			 */
 
 			// Select 2 Individuals from the current population. Currently returns random Individual
-			Individual parent1 = select(); 
-			Individual parent2 = select();
+			Individual parent1 = select_tournament2(); 
+			Individual parent2 = select_tournament2();
 
 			// Generate a child by crossover. Not Implemented			
 			ArrayList<Individual> children = reproduce(parent1, parent2);			
@@ -120,7 +123,18 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 	 * NEEDS REPLACED with proper selection this just returns a copy of a random
 	 * member of the population
 	 */
-	private Individual select() {		
+	private Individual select_tournament2() {		
+		Individual mook1 = select_random();
+		Individual mook2 = select_random();
+		
+		if (mook1.fitness > mook2.fitness)
+			return mook1.copy();
+		else
+			return mook2.copy();
+	}
+	
+	
+	private Individual select_random() {		
 		Individual parent = population.get(Parameters.random.nextInt(Parameters.popSize));
 		return parent.copy();
 	}
@@ -137,6 +151,43 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork {
 		children.add(parent2.copy());		
 		return children;
 	} 
+	
+	
+	
+	private Individual k_point_crossover(Individual parent1, Individual parent2, Integer k)
+	{
+		if (Parameters.getNumGenes() < k)
+		{
+			Individual child = new Individual();
+			
+			ArrayList<Integer> c_points = new ArrayList<Integer>();
+			while (c_points.size() < k)
+			{
+				Integer point = Parameters.random.nextInt(k - 1) + 1;
+				if (c_points.contains(point))
+					continue;
+				c_points.add(point);
+			}
+			
+			boolean p1 = true;
+			for (int i = 0; i < Parameters.getNumGenes(); i++)
+			{
+				if (c_points.contains(i))
+					p1 = !p1;
+				
+				if (p1)
+					child.chromosome[i] = parent1.chromosome[i];
+				else
+					child.chromosome[i] = parent2.chromosome[i];
+			}
+			return child;
+		}
+		else
+			return parent1.copy();
+	}
+ 
+	
+	
 	
 	/**
 	 * Mutation
