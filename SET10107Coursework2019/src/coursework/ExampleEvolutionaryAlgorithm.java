@@ -41,6 +41,8 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork
 		while (evaluations < Parameters.maxEvaluations)
 		{
 			int n_children = (int) (Parameters.popSize * Parameters.replacement_rate);
+			if (n_children < 1)
+				n_children = 1;
 			ArrayList<Individual> children = new ArrayList<Individual>();
 
 			for (int i = 0; i < n_children; i++)
@@ -65,8 +67,9 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork
 			best = getBest();
 
 			// Does something that the jar won't let me see. May be not important
-			setChanged();
-			notifyObservers(best.copy());
+		//	setChanged();
+		//	notifyObservers(best.copy());
+			outputStats();
 		}
 //		{
 //			// ArrayList<Individual> children = new ArrayList<Individual>();
@@ -201,6 +204,37 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork
 	}
 
 
+	
+	// Leaky ReLu
+	@Override
+	public double activationFunction(double x)
+	{
+		if (x < 0)
+		{
+			return x * 0.01;
+		} else
+		{
+			return x;
+		}
+	}
+
+
+
+//	@Override
+//	public double activationFunction(double x)
+//	{
+//		return x;
+////		if (x < -20.0)
+////		{
+////			return -1.0;
+////		} else if (x > 20.0)
+////		{
+////			return 1.0;
+////		}
+////		return Math.tanh(x);
+//	}
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 
@@ -326,20 +360,5 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork
 			}
 		}
 		return idx;
-	}
-
-
-
-	@Override
-	public double activationFunction(double x)
-	{
-		if (x < -20.0)
-		{
-			return -1.0;
-		} else if (x > 20.0)
-		{
-			return 1.0;
-		}
-		return Math.tanh(x);
 	}
 }
