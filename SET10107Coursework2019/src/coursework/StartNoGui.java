@@ -18,26 +18,31 @@ public class StartNoGui
 {
 	public static void main(String[] args) throws IOException
 	{
-		final int n_tests = 20;
-		final boolean run_tests = false;
+		final int n_tests = 10;
+		final boolean run_tests = true;
 
+		
+		Parameters.setHidden(6);
+		Parameters.popSize = 200;
+		Parameters.mutateRate = 0.65;
+		Parameters.mutateChange = 0.5;
+		Parameters.replacement_rate = 0.1;
+		
+		
 		if (run_tests)
 		{
-			FileWriter fw = new FileWriter("data3 ReLu and mutate change.csv");
-			fw.write("mutation change, training 1, test 1, training 2, test 2, training 3, test 3, training 4, test 4, training 5, test 5,"
+			FileWriter fw = new FileWriter("data7 7hidden.csv");
+			fw.write("hidden nodes, training 1, test 1, training 2, test 2, training 3, test 3, training 4, test 4, training 5, test 5,"
 							+ " training 6, test 6, training 7, test 7, training 8, test 8, training 9, test 9, training 10, test 10\n");
 			
 
-			Parameters.setHidden(6);
-			Parameters.popSize = 400;
-			Parameters.mutateRate = 0.65;
 
-			for (double mutation_change = 0.01; mutation_change <= 0.2; mutation_change += 0.01)
+			for (int hidden = 7; hidden <= 7; hidden += 1)
 			{
-				fw.write(mutation_change + ", ");
+				fw.write(hidden + ", ");
 				for (int test = 0; test < n_tests; test++)
 				{
-					Parameters.mutateChange = 0.01;
+					Parameters.setHidden(hidden);
 					
 					Parameters.maxEvaluations = 20000; // Used to terminate the EA after this many generations
 					Parameters.setDataSet(DataSet.Training);
@@ -76,9 +81,6 @@ public class StartNoGui
 			fw.close();
 		} else
 		{
-			Parameters.setHidden(6);
-			Parameters.popSize = 400;
-			Parameters.mutateRate = 0.65;
 
 			Parameters.maxEvaluations = 20000; // Used to terminate the EA after this many generations
 			Parameters.setDataSet(DataSet.Training);

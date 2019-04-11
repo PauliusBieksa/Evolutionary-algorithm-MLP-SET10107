@@ -71,32 +71,7 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork
 		//	notifyObservers(best.copy());
 			outputStats();
 		}
-//		{
-//			// ArrayList<Individual> children = new ArrayList<Individual>();
-//
-//			// Select 2 Individuals from the current population. Currently returns random
-//			// Individual
-//			Individual parent1 = select_tournament(2);
-//			Individual parent2 = select_tournament(2);
-//
-//			// Generate a child by crossover. Not Implemented
-//			ArrayList<Individual> children = reproduce(parent1, parent2);
-//
-//			// mutate the offspring
-//			mutate(children);
-//
-//			// Evaluate the children
-//			evaluateIndividuals(children);
-//
-//			// Replace children in population
-//			replace(children);
-//
-//			// check to see if the best has improved
-//			best = getBest();
-//
-//			// Implemented in NN class.
-//			outputStats();
-//		}
+
 
 		// save the trained network to disk
 		saveNeuralNetwork();
@@ -205,34 +180,34 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork
 
 
 	
-	// Leaky ReLu
-	@Override
-	public double activationFunction(double x)
-	{
-		if (x < 0)
-		{
-			return x * 0.01;
-		} else
-		{
-			return x;
-		}
-	}
-
-
-
+//	// Leaky ReLu
 //	@Override
 //	public double activationFunction(double x)
 //	{
-//		return x;
-////		if (x < -20.0)
-////		{
-////			return -1.0;
-////		} else if (x > 20.0)
-////		{
-////			return 1.0;
-////		}
-////		return Math.tanh(x);
+//		if (x < 0)
+//		{
+//			return x * 0.01;
+//		} else
+//		{
+//			return x;
+//		}
 //	}
+
+
+
+	@Override
+	public double activationFunction(double x)
+	{
+		return x;
+//		if (x < -20.0)
+//		{
+//			return -1.0;
+//		} else if (x > 20.0)
+//		{
+//			return 1.0;
+//		}
+//		return Math.tanh(x);
+	}
 
 
 

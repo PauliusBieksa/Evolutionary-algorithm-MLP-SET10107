@@ -9,6 +9,11 @@ public class StartGui {
 	 * 
 	 */
 	public static void main(String[] args) {
+		Parameters.setHidden(6);
+		Parameters.popSize = 200;
+		Parameters.mutateRate = 0.65;
+		Parameters.mutateChange = 0.5;
+		Parameters.replacement_rate = 0.11;
 		Gui.main(null);
 	}
 

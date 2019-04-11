@@ -19,7 +19,7 @@ public class Parameters {
 	public static double maxGene = +3;
 		
 	public static int popSize = 470;
-	public static float replacement_rate = 0.1f;
+	public static double replacement_rate = 0.1f;
 	public static int maxEvaluations = 20000;
 	
 	// Parameters for mutation 
