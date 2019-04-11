@@ -19,7 +19,7 @@ public class StartNoGui
 	public static void main(String[] args) throws IOException
 	{
 		final int n_tests = 10;
-		final boolean run_tests = true;
+		final boolean run_tests = false;
 
 		
 		Parameters.setHidden(6);
@@ -27,22 +27,22 @@ public class StartNoGui
 		Parameters.mutateRate = 0.65;
 		Parameters.mutateChange = 0.5;
 		Parameters.replacement_rate = 0.1;
+		Parameters.conf_threshold = 0.65;
 		
 		
 		if (run_tests)
 		{
-			FileWriter fw = new FileWriter("data7 7hidden.csv");
-			fw.write("hidden nodes, training 1, test 1, training 2, test 2, training 3, test 3, training 4, test 4, training 5, test 5,"
+			FileWriter fw = new FileWriter("data8 fast eval threshhold.csv");
+			fw.write("conf threshold, training 1, test 1, training 2, test 2, training 3, test 3, training 4, test 4, training 5, test 5,"
 							+ " training 6, test 6, training 7, test 7, training 8, test 8, training 9, test 9, training 10, test 10\n");
 			
 
 
-			for (int hidden = 7; hidden <= 7; hidden += 1)
+			for (double tr = 0.5; tr <= 0.99; tr += 0.01)
 			{
-				fw.write(hidden + ", ");
+				fw.write(tr + ", ");
 				for (int test = 0; test < n_tests; test++)
 				{
-					Parameters.setHidden(hidden);
 					
 					Parameters.maxEvaluations = 20000; // Used to terminate the EA after this many generations
 					Parameters.setDataSet(DataSet.Training);

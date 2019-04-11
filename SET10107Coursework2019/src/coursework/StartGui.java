@@ -13,7 +13,8 @@ public class StartGui {
 		Parameters.popSize = 200;
 		Parameters.mutateRate = 0.65;
 		Parameters.mutateChange = 0.5;
-		Parameters.replacement_rate = 0.11;
+		Parameters.replacement_rate = 0.1;
+		Parameters.conf_threshold = 0.85;
 		Gui.main(null);
 	}
 

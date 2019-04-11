@@ -3,6 +3,7 @@ package coursework;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 
 import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Collections;
 
@@ -30,6 +31,11 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork
 		// Initialise a population of Individuals with random weights
 		population = initialise();
 
+		// Initialise confidence values
+		HashMap<Individual, Double> confidence = new HashMap<Individual, Double>();
+		for (Individual i : population)
+			confidence.put(i, 1.0);
+
 		// Record a copy of the best Individual in the population
 		best = getBest();
 		System.out.println("Best From Initialisation " + best);
@@ -50,31 +56,70 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork
 				// Selection
 				Individual parent1 = select_tournament(2);
 				Individual parent2 = select_tournament(2);
+
+				Individual child = k_point_crossover(parent1, parent2, 2);
+				mutate(child);
+
+				double similarity1 = 0.0;
+				double similarity2 = 0.0;
+				for (int g = 0; g < child.chromosome.length; g++)
+				{
+					double c = Math.abs(child.chromosome[g]);
+					double p1 = Math.abs(parent1.chromosome[g]);
+					double p2 = Math.abs(parent2.chromosome[g]);
+					similarity1 += Math.min(c, p1) / Math.max(c, p1);
+					similarity2 += Math.min(c, p2) / Math.max(c, p2);
+				}
+				similarity1 /= child.chromosome.length;
+				similarity2 /= child.chromosome.length;
+
+				child.fitness = (similarity1 * confidence.get(parent1) * parent1.fitness + similarity2 * confidence.get(parent2) * parent2.fitness)
+						/ (similarity1 * confidence.get(parent1) + similarity2 * confidence.get(parent2));
+				double conf = (similarity1 * confidence.get(parent1) * similarity1 * confidence.get(parent1) + similarity2 * confidence.get(parent2) * similarity2 * confidence.get(parent2))
+						/ (similarity1 * confidence.get(parent1) + similarity2 * confidence.get(parent2));
 				
+//				if (conf > 0.7)
+//					conf = conf;
+				
+				confidence.put(child, conf);
+
 				// Crossover
-				children.add(k_point_crossover(parent1, parent2, 2));
+				children.add(child);
 			}
-			
+
 			// Mutation
-			mutate(children);
-			
+			//mutate(children);
+
 			// Evaluation
-			evaluateIndividuals(children);
-			
+			//evaluateIndividuals(children);
+			fast_evaluate(children, confidence);
+
 			replace(children);
-			
+
 			// Get best individual
 			best = getBest();
 
 			// Does something that the jar won't let me see. May be not important
-		//	setChanged();
-		//	notifyObservers(best.copy());
+			// setChanged();
+			// notifyObservers(best.copy());
 			outputStats();
 		}
 
-
 		// save the trained network to disk
 		saveNeuralNetwork();
+	}
+
+	
+	
+	
+	// Evaluates individuals if confidence value below threshold
+	private void fast_evaluate(ArrayList<Individual> individuals, HashMap<Individual, Double> conf)
+	{
+		for (Individual individual : individuals)
+		{
+			if (conf.get(individual) < Parameters.conf_threshold)
+				individual.fitness = Fitness.evaluate(individual, this);
+		}
 	}
 
 
@@ -105,7 +150,7 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork
 				best_fitness = parents.get(i).fitness;
 				best = i;
 			}
-		return parents.get(best).copy();
+		return parents.get(best);
 	}
 
 
@@ -114,7 +159,7 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork
 	private Individual select_random()
 	{
 		Individual parent = population.get(Parameters.random.nextInt(Parameters.popSize));
-		return parent.copy();
+		return parent;
 	}
 
 
@@ -151,6 +196,22 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork
 		} else
 			return parent1.copy();
 	}
+	
+	
+	
+	//
+	private Individual uniform_crossover(Individual parent1, Individual parent2)
+	{
+		Individual child = new Individual();
+		for (int i = 0; i < parent1.chromosome.length; i++)
+		{
+			if (Parameters.random.nextBoolean())
+				child.chromosome[i] = parent1.chromosome[i];
+			else
+				child.chromosome[i] = parent2.chromosome[i];
+		}
+		return child;
+	}
 
 
 
@@ -179,7 +240,27 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork
 	}
 
 
-	
+
+	// Mutete single Individual
+	private void mutate(Individual individual)
+	{
+		for (int i = 0; i < individual.chromosome.length; i++)
+		{
+			if (Parameters.random.nextDouble() < Parameters.mutateRate)
+			{
+				if (Parameters.random.nextBoolean())
+				{
+					individual.chromosome[i] += (Parameters.mutateChange);
+				} else
+				{
+					individual.chromosome[i] -= (Parameters.mutateChange);
+				}
+			}
+		}
+	}
+
+
+
 //	// Leaky ReLu
 //	@Override
 //	public double activationFunction(double x)
@@ -192,8 +273,6 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork
 //			return x;
 //		}
 //	}
-
-
 
 	@Override
 	public double activationFunction(double x)

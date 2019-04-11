@@ -18,9 +18,11 @@ public class Parameters {
 	public static double minGene = -3; // specifies minimum and maximum weight values 
 	public static double maxGene = +3;
 		
-	public static int popSize = 470;
+	public static int popSize = 200;
 	public static double replacement_rate = 0.1f;
 	public static int maxEvaluations = 20000;
+	
+	public static double conf_threshold = 0.55;
 	
 	// Parameters for mutation 
 	// Rate = probability of changing a gene
