@@ -48,30 +48,64 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork
 			for (int i = 0; i < n_children; i++)
 			{
 				// Selection
-				Individual parent1 = select_tournament(2);
-				Individual parent2 = select_tournament(2);
+				//Individual parent1 = Parameters.operator.equals("ranked") ? select_ranked() : select_tournament(2);
+				//Individual parent2 = select_tournament(2);
+				//Individual parent2 = Parameters.operator.equals("ranked") ? select_ranked() : select_tournament(2);
 				
+				Individual parent1 = new Individual();
+				Individual parent2 = new Individual();
+				if (Parameters.operator.equals("ranked"))
+				{
+					parent1 = select_ranked();
+					parent2 = select_ranked();
+				}
+				else if (Parameters.operator.equals("tournament"))
+				{
+					parent1 = select_tournament(2);
+					parent2 = select_tournament(2);
+				}
+				else if (Parameters.operator.equals("ranked/tournament"))
+				{
+					parent1 = select_ranked();
+					parent2 = select_tournament(2);
+				}
+				else if (Parameters.operator.equals("ranked/random"))
+				{
+					parent1 = select_ranked();
+					parent2 = select_random();
+				}
+				else if (Parameters.operator.equals("tournament/random"))
+				{
+					parent1 = select_ranked();
+					parent2 = select_random();
+				}
+				else if (Parameters.operator.equals("random"))
+				{
+					parent1 = select_random();
+					parent2 = select_random();
+				}
+				
+
 				// Crossover
-				children.add(k_point_crossover(parent1, parent2, 2));
+				children.add(k_point_crossover(parent1, parent2, Parameters.cross_k));
 			}
-			
+
 			// Mutation
 			mutate(children);
-			
+
 			// Evaluation
 			evaluateIndividuals(children);
-			
+
 			replace(children);
-			
+
 			// Get best individual
 			best = getBest();
 
 			// Does something that the jar won't let me see. May be not important
-		//	setChanged();
-		//	notifyObservers(best.copy());
+			// setChanged();
+			// notifyObservers(best.copy());
 			outputStats();
 		}
-
 
 		// save the trained network to disk
 		saveNeuralNetwork();
@@ -106,6 +140,32 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork
 				best = i;
 			}
 		return parents.get(best).copy();
+	}
+	
+	
+	
+	// Ranked selection
+	private Individual select_ranked()
+	{
+		int t = 0;
+		for (int i = 0; i < Parameters.popSize; i++)
+			t += i;
+		int ran = Parameters.random.nextInt(t) + 1;
+		ArrayList<Individual> parents = new ArrayList<Individual>();
+		Individual result = new Individual();
+		parents.addAll(population);
+		for (int i = 1; i <= Parameters.popSize; i++)
+		{
+			int worst = getWorstIndex(parents);
+			if (ran >= t)
+				result = parents.get(worst).copy();
+			else
+			{
+				t -= i;
+				parents.remove(worst);
+			}
+		}
+		return result;
 	}
 
 
@@ -154,6 +214,22 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork
 
 
 
+	// Uniform crossover
+	private Individual uniform_crossover(Individual parent1, Individual parent2)
+	{
+		Individual child = new Individual();
+		for (int i = 0; i < child.chromosome.length; i++)
+		{
+			if (Parameters.random.nextBoolean())
+				child.chromosome[i] = parent1.chromosome[i];
+			else
+				child.chromosome[i] = parent2.chromosome[i];
+		}
+		return child;
+	}
+
+
+
 	// Mutates an individual
 	private Individual forced_mutate(Individual parent)
 	{
@@ -179,7 +255,7 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork
 	}
 
 
-	
+
 //	// Leaky ReLu
 //	@Override
 //	public double activationFunction(double x)
@@ -192,8 +268,6 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork
 //			return x;
 //		}
 //	}
-
-
 
 	@Override
 	public double activationFunction(double x)
@@ -324,6 +398,33 @@ public class ExampleEvolutionaryAlgorithm extends NeuralNetwork
 		for (int i = 0; i < population.size(); i++)
 		{
 			Individual individual = population.get(i);
+			if (worst == null)
+			{
+				worst = individual;
+				idx = i;
+			} else if (individual.fitness > worst.fitness)
+			{
+				worst = individual;
+				idx = i;
+			}
+		}
+		return idx;
+	}
+
+
+
+	/**
+	 * Returns the index of the worst member of the array
+	 * 
+	 * @return
+	 */
+	private int getWorstIndex(ArrayList<Individual> individuals)
+	{
+		Individual worst = null;
+		int idx = -1;
+		for (int i = 0; i < individuals.size(); i++)
+		{
+			Individual individual = individuals.get(i);
 			if (worst == null)
 			{
 				worst = individual;

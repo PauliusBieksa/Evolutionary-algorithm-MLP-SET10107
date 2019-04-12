@@ -22,6 +22,9 @@ public class Parameters {
 	public static double replacement_rate = 0.1f;
 	public static int maxEvaluations = 20000;
 	
+	public static String operator = "ranked";
+	public static int cross_k = 1;
+	
 	// Parameters for mutation 
 	// Rate = probability of changing a gene
 	// Change = the maximum +/- adjustment to the gene value
